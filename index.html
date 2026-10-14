@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knöpfe</title>
+<link id="ico" rel="icon" href="data:,">
+<link id="tico" rel="apple-touch-icon" href="data:,">
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 24px 16px; background: #fafafa; color: #222; }
+  h1 { font-size: 24px; margin: 0 0 20px; }
+  a.k { display: block; padding: 18px; margin: 0 0 14px; border-radius: 14px; background: #e8710a; color: #fff; text-decoration: none; font-size: 20px; }
+  p { font-size: 19px; line-height: 1.5; }
+  b { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="inhalt"></div>
+<script>
+// Hier stehen die Knöpfe. Neuer Knopf = neue Zeile.
+var KNOEPFE = {
+  world: { name: "MSCI World",    kurz: "WORLD", isin: "IE00B4L5Y983" },
+  ch:    { name: "CH0237935637",  kurz: "CH",    isin: "CH0237935637" }
+};
+
+function ziel(k) {
+  return "https://www.justetf.com/ch/etf-profile.html?isin=" + k.isin + "#uebersicht";
+}
+
+function symbol(text) {
+  try {
+    var c = document.createElement("canvas"); c.width = c.height = 192;
+    var g = c.getContext("2d");
+    g.fillStyle = "#e8710a"; g.fillRect(0, 0, 192, 192);
+    g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = "bold " + (text.length > 3 ? 44 : 72) + "px sans-serif";
+    g.fillText(text, 96, 100);
+    var u = c.toDataURL("image/png");
+    document.getElementById("ico").href = u;
+    document.getElementById("tico").href = u;
+  } catch (e) {}
+}
+
+var f = new URLSearchParams(location.search).get("f");
+var k = KNOEPFE[f];
+var box = document.getElementById("inhalt");
+
+if (k && location.hash === "#anlegen") {
+  // Anlegen: Seite bleibt stehen, Adresse wird zur Knopf-Adresse
+  document.title = k.name;
+  symbol(k.kurz);
+  history.replaceState(null, "", location.pathname + "?f=" + f);
+  box.innerHTML = "<h1>" + k.name + "</h1><p>Jetzt oben rechts <b>⋮</b> → " +
+    "<b>Installieren und Verknüpfung erstellen</b> → <b>Verknüpfung erstellen</b> → <b>Hinzufügen</b>.</p>";
+} else if (k) {
+  // Knopf gedrückt: sofort weiter zur Fondsseite
+  document.title = k.name;
+  location.replace(ziel(k));
+} else {
+  // Übersicht: Knopf zum Anlegen wählen
+  var h = "<h1>Knopf anlegen</h1>";
+  for (var id in KNOEPFE) {
+    h += '<a class="k" href="?f=' + id + '#anlegen">' + KNOEPFE[id].name + "</a>";
+  }
+  box.innerHTML = h;
+}
+</script>
+</body>
+</html>
